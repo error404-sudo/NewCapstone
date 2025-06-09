@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as stMore actions
 import pandas as pd
 import numpy as np
 import nltk
@@ -6,6 +6,34 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import gdown
+import pandas as pd
+import streamlit as st
+
+# ID file dari Google Drive (pastikan untuk menggunakan ID file yang benar)
+file_id = '1E4W1RvNGgyawc6I4TxQk76n289FX9kCK'  # Ganti dengan ID file dataset Anda
+url = f'https://drive.google.com/uc?id={file_id}'
+
+# Download dataset dari Google Drive
+gdown.download(url, 'dataset social media.xlsx', quiet=False)
+
+# Membaca dataset setelah diunduh
+df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
+
+# Proses lainnya untuk aplikasi Streamlit
+# ===============================
+# === SETUP & PERSIAPAN DATA ====
+# ===============================
+
+@st.cache_data
+def load_data():
+    # Pastikan df sudah ada
+    return df
+
+# Load data
+df = load_data()
+
+# Lanjutkan dengan kode aplikasi Streamlit Anda...
 
 # ===============================
 # === SETUP & PERSIAPAN DATA ====
@@ -211,7 +239,7 @@ model, rmse, mae, r2 = build_engagement_model()
 # ===============================
 # === ANTARMUKA STREAMLIT APP ===
 # ===============================
-
+import streamlit as st
 
 st.markdown(
     """
@@ -219,12 +247,31 @@ st.markdown(
         <span style="font-size:3em;">📊</span><br>
         <span style="font-size:1.8em; font-weight: bold;">Social Media Caption & Posting Analytics</span><br>
         <span style="font-size:1.2em; color:gray;">Boost Your Engagement with Smart Caption Analysis and Optimal Posting Times</span>
+        <span style="font-size:1.2em; color:gray;">Boost Your Engagement with Smart Caption Analysis and Optimal Posting Times</span><br><br>
+        <!-- Logo Row -->
+        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; max-width: 100%; overflow: hidden;">
+            <div>
+                <img src="https://github.com/error404-sudo/NewCapstone/raw/main/X.png" width="100" />
+                <p>X</p>
+            </div>
+            <div>
+                <img src="https://github.com/error404-sudo/NewCapstone/raw/main/linkedin.png" width="100" />
+                <p>LinkedIn</p>
+            </div>
+            <div>
+                <img src="https://github.com/error404-sudo/NewCapstone/raw/main/instagram.png" width="100" />
+                <p>Instagram</p>
+            </div>
+            <div>
+                <img src="https://github.com/error404-sudo/NewCapstone/raw/main/facebook.png" width="100" />
+                <p>Facebook</p>
+            </div>
+        </div>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-st.markdown("---")
 
 with st.form(key='input_form'):
     caption_input = st.text_area("Enter Your Caption:")
@@ -300,4 +347,4 @@ if submit_button:
     st.markdown(f"**Engagement Rate Model - RMSE:** {rmse:.3f} | **MAE:** {mae:.3f} | **R2:** {r2:.4f}")
 
 st.caption("© 2024 Social Media Analytics | Powered by Streamlit")
-
+~
