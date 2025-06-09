@@ -1,11 +1,5 @@
-iimport streamlit as st
+import streamlit as st
 import pandas as pd
-import numpy as np
-import nltk
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import gdown
 import os
 
@@ -59,11 +53,15 @@ df = load_data()
 # === INISIALISASI ANALYZER ===
 # ===============================
 
+import nltk
 nltk.download('vader_lexicon')
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
 vader_analyzer = SentimentIntensityAnalyzer()
 
-# You can use the loaded DataFrame (df) here as needed
+# Tampilkan beberapa data untuk memastikan semuanya berjalan baik
 st.write(df.head())
+
 
 # ===============================
 # === FUNGSI UTAMA ANALISIS  ====
