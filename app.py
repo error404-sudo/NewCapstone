@@ -29,7 +29,7 @@ vader_analyzer = SentimentIntensityAnalyzer()
 # === SETUP & PERSIAPAN DATA ====
 # ===============================
 
-@st.cache
+@st.cache_data
 def load_data():
     df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
     # Cleaning kolom utama
