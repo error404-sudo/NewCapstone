@@ -13,7 +13,11 @@ import os
 def download_data():
     file_id = '1E4W1RvNGgyawc6I4TxQk76n289FX9kCK'  # ID file dataset di Google Drive
     url = f'https://drive.google.com/uc?id={file_id}'
-    gdown.download(url, 'dataset social media.xlsx', quiet=False)
+    
+    try:
+        gdown.download(url, 'dataset social media.xlsx', quiet=False)
+    except Exception as e:
+        st.error(f"Error downloading the dataset: {e}")
 
 # Memeriksa jika file dataset ada, jika tidak unduh
 if not os.path.exists('dataset social media.xlsx'):
@@ -22,8 +26,11 @@ if not os.path.exists('dataset social media.xlsx'):
 # ===============================
 # === INISIALISASI ANALYZER  ====
 # ===============================
+try:
+    nltk.download('vader_lexicon')
+except Exception as e:
+    st.error(f"Error downloading NLTK lexicon: {e}")
 
-nltk.download('vader_lexicon')
 vader_analyzer = SentimentIntensityAnalyzer()
 
 # ===============================
@@ -32,11 +39,17 @@ vader_analyzer = SentimentIntensityAnalyzer()
 
 @st.cache_data
 def load_data():
-    df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
+    try:
+        df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
+    except FileNotFoundError:
+        st.error("Dataset not found. Please upload the dataset.")
+        return None
+    
     # Cleaning kolom utama
     for col in ['Platform', 'Post Type', 'Audience Gender', 'Age Group', 'Sentiment', 'Time Periods', 'Weekday Type']:
         if col in df.columns:
             df[col] = df[col].astype(str).str.strip().str.title()
+    
     # Drop kolom tidak relevan
     drop_cols = [
         'Post ID', 'Date', 'Time', 'Audience Location', 'Audience Continent',
@@ -45,16 +58,39 @@ def load_data():
     for col in drop_cols:
         if col in df.columns:
             df = df.drop(columns=[col])
+    
     # Konversi timestamp dan fitur waktu
     df['Post Timestamp'] = pd.to_datetime(df['Post Timestamp'], errors='coerce')
     df = df.dropna(subset=['Post Timestamp'])
     df['Post Hour'] = df['Post Timestamp'].dt.hour
     df['Post Day Name'] = df['Post Timestamp'].dt.day_name()
+    
     if 'Weekday Type' in df.columns:
         df = df.drop(columns=['Weekday Type'])
+    
     return df
 
 df = load_data()
+
+# ===============================
+# === FUNGSI UTAMA ANALISIS  ====
+# ===============================
+
+def analyze_sentiment(caption):
+    score = vader_analyzer.polarity_scores(caption)
+    if score['compound'] >= 0.05:
+        return "Positive"
+    elif score['compound'] <= -0.05:
+        return "Negative"
+    else:
+        return "Neutral"
+
+def apply_engagement_rate_formatting(df):
+    df['Engagement Rate'] = (df['Engagement Rate'] / 1000).round(4)  # Membagi dengan 1000
+    df['Engagement Rate'] = df['Engagement Rate'].clip(0.01, 1.00) * 100  # Membatasi antara 1% dan 100%
+    df['Engagement Rate'] = df['Engagement Rate'].astype(str) + '%'
+    return df
+
 
 # ===============================
 # === FUNGSI UTAMA ANALISIS  ====
