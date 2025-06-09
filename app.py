@@ -1,4 +1,4 @@
-import streamlit as st
+iimport streamlit as st
 import pandas as pd
 import numpy as np
 import nltk
@@ -7,6 +7,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import gdown
+import os
 
 # ===============================
 # === DOWNLOAD DATA FROM GOOGLE DRIVE ===
@@ -16,20 +17,20 @@ import gdown
 def download_data():
     file_id = '1E4W1RvNGgyawc6I4TxQk76n289FX9kCK'
     url = f'https://drive.google.com/uc?id={file_id}'
-    gdown.download(url, 'dataset social media.xlsx', quiet=False)
+    output = 'dataset_social_media.xlsx'
+    gdown.download(url, output, quiet=False)
 
 # Mengecek apakah file sudah ada, jika tidak, download
-import os
-if not os.path.exists('dataset social media.xlsx'):
+if not os.path.exists('dataset_social_media.xlsx'):
     download_data()
 
 # ===============================
-# === SETUP & PERSIAPAN DATA ====
+# === SETUP & PERSIAPAN DATA ===
 # ===============================
 
 @st.cache_data
 def load_data():
-    df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
+    df = pd.read_excel('dataset_social_media.xlsx', sheet_name='Working File')
     
     # Cleaning kolom utama
     for col in ['Platform', 'Post Type', 'Audience Gender', 'Age Group', 'Sentiment', 'Time Periods', 'Weekday Type']:
@@ -55,12 +56,14 @@ def load_data():
 df = load_data()
 
 # ===============================
-# === INISIALISASI ANALYZER  ====
+# === INISIALISASI ANALYZER ===
 # ===============================
 
 nltk.download('vader_lexicon')
 vader_analyzer = SentimentIntensityAnalyzer()
 
+# You can use the loaded DataFrame (df) here as needed
+st.write(df.head())
 
 # ===============================
 # === FUNGSI UTAMA ANALISIS  ====
