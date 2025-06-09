@@ -328,8 +328,3 @@ if submit_button:
     else:
         st.error("No alternative platforms recommended.")
 
-    # 5. ML Model Prediction Scores (info, not a new prediction for the user)
-    st.markdown("---")
-    st.markdown(f"**Engagement Rate Model - RMSE:** {rmse:.3f} | **MAE:** {mae:.3f} | **R2:** {r2:.4f}")
-
-st.caption("© 2024 Social Media Analytics | Powered by Streamlit")
