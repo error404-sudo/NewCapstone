@@ -242,18 +242,6 @@ model, rmse, mae, r2 = build_engagement_model()
 # ===============================
 import streamlit as st
 
-# Menampilkan judul
-st.markdown(
-    """
-    <div style='text-align: center;'>
-        <span style="font-size:3em;">📊</span><br>
-        <span style="font-size:1.8em; font-weight: bold;">Social Media Caption & Posting Analytics</span><br>
-        <span style="font-size:1.2em; color:gray;">Boost Your Engagement with Smart Caption Analysis and Optimal Posting Times</span>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
 st.markdown(
     """
     <div style='text-align: center;'>
