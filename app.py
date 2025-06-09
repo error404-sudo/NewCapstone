@@ -229,29 +229,27 @@ model, rmse, mae, r2 = build_engagement_model()
 # ===============================
 # === ANTARMUKA STREAMLIT APP ===
 # ===============================
-
 st.markdown(
     """
     <div style='text-align: center;'>
-        <span style="font-size:3em;">📊</span><br>
         <span style="font-size:1.8em; font-weight: bold;">Social Media Caption & Posting Analytics</span><br>
         <span style="font-size:1.2em; color:gray;">Boost Your Engagement with Smart Caption Analysis and Optimal Posting Times</span><br><br>
         <!-- Logo Row -->
         <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; max-width: 100%; overflow: hidden;">
             <div>
-                <img src="https://github.com/error404-sudo/NewCapstone/raw/main/X.png" width="100" />
+                <img src="https://raw.githubusercontent.com/error404-sudo/NewCapstone/main/X.png" width="100" />
                 <p>X</p>
             </div>
             <div>
-                <img src="https://github.com/error404-sudo/NewCapstone/raw/main/linkedin.png" width="100" />
+                <img src="https://raw.githubusercontent.com/error404-sudo/NewCapstone/main/linkedin.png" width="100" />
                 <p>LinkedIn</p>
             </div>
             <div>
-                <img src="https://github.com/error404-sudo/NewCapstone/raw/main/instagram.png" width="100" />
+                <img src="https://raw.githubusercontent.com/error404-sudo/NewCapstone/main/instagram.png" width="100" />
                 <p>Instagram</p>
             </div>
             <div>
-                <img src="https://github.com/error404-sudo/NewCapstone/raw/main/facebook.png" width="100" />
+                <img src="https://raw.githubusercontent.com/error404-sudo/NewCapstone/main/facebook.png" width="100" />
                 <p>Facebook</p>
             </div>
         </div>
@@ -259,6 +257,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 with st.form(key='input_form'):
     caption_input = st.text_area("Enter Your Caption:")
