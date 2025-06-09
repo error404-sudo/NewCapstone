@@ -1,4 +1,4 @@
-import streamlit as stMore actions
+import streamlit as st
 import pandas as pd
 import numpy as np
 import nltk
@@ -7,39 +7,30 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import gdown
-import pandas as pd
-import streamlit as st
 
-# ID file dari Google Drive (pastikan untuk menggunakan ID file yang benar)
-file_id = '1E4W1RvNGgyawc6I4TxQk76n289FX9kCK'  # Ganti dengan ID file dataset Anda
-url = f'https://drive.google.com/uc?id={file_id}'
+# Function to download the dataset if not already available
+def download_data():
+    file_id = '1E4W1RvNGgyawc6I4TxQk76n289FX9kCK'
+    url = f'https://drive.google.com/uc?id={file_id}'
+    gdown.download(url, 'dataset social media.xlsx', quiet=False)
 
-# Download dataset dari Google Drive
-gdown.download(url, 'dataset social media.xlsx', quiet=False)
+# Check if dataset exists, if not, download it
+import os
+if not os.path.exists('dataset social media.xlsx'):
+    download_data()
 
-# Membaca dataset setelah diunduh
-df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
-
-# Proses lainnya untuk aplikasi Streamlit
 # ===============================
-# === SETUP & PERSIAPAN DATA ====
+# === INISIALISASI ANALYZER  ====
 # ===============================
-
-@st.cache_data
-def load_data():
-    # Pastikan df sudah ada
-    return df
-
-# Load data
-df = load_data()
-
-# Lanjutkan dengan kode aplikasi Streamlit Anda...
+nltk.download('vader_lexicon')
+vader_analyzer = SentimentIntensityAnalyzer()
 
 # ===============================
 # === SETUP & PERSIAPAN DATA ====
 # ===============================
 
 @st.cache_data
+@st.cache
 def load_data():
     df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
     # Cleaning kolom utama
@@ -90,6 +81,7 @@ def apply_engagement_rate_formatting(df):
     df['Engagement Rate'] = (df['Engagement Rate'] / 1000).round(4)  # Membagi dengan 1000
     df['Engagement Rate'] = df['Engagement Rate'].clip(0.01, 1.00) * 100  # Membatasi antara 1% dan 100%
     df['Engagement Rate'] = df['Engagement Rate'].astype(str) + '%'  # Menambahkan tanda persen
+    df['Engagement Rate'] = df['Engagement Rate'].astype(str) + '%'
     return df
 
 def hybrid_recommendation_pipeline_super_adaptive(post_type, audience_gender, age_group, sentiment=None, platform_input=None):
@@ -239,7 +231,7 @@ model, rmse, mae, r2 = build_engagement_model()
 # ===============================
 # === ANTARMUKA STREAMLIT APP ===
 # ===============================
-import streamlit as st
+
 
 st.markdown(
     """
@@ -272,6 +264,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.markdown("---")
 
 with st.form(key='input_form'):
     caption_input = st.text_area("Enter Your Caption:")
@@ -288,6 +281,8 @@ if submit_button:
     st.success(f"Predicted Sentiment for Your Caption: **{sentiment_result}**")
 
     # 2. Recommendation Pipeline
+    
+    # Recommendation Pipeline
     reco_pipeline, warning_pipeline = hybrid_recommendation_pipeline_super_adaptive(
         post_type_input,
         audience_gender_input,
@@ -297,12 +292,15 @@ if submit_button:
     )
 
     # Main output (first row from the pipeline)
+    
+    # Display recommendation and other results
     if not reco_pipeline.empty:
         best_reco = reco_pipeline.iloc[0]
         if 'Platform' in reco_pipeline.columns:
             reco_text = f"Post at **{int(best_reco['Post Hour']):02d}:00 WIB** on **{best_reco['Post Day Name']}** using platform **{best_reco['Platform']}** for maximum engagement."
         else:
             reco_text = f"Post at **{int(best_reco['Post Hour']):02d}:00 WIB** on **{best_reco['Post Day Name']}** for maximum engagement."
+        reco_text = f"Post at **{int(best_reco['Post Hour']):02d}:00 WIB** on **{best_reco['Post Day Name']}** for maximum engagement."
         st.markdown(f"### ⏰ Posting Time Recommendation\n{reco_text}")
         with st.expander("View Top 5 Recommendations"):
             st.dataframe(reco_pipeline.reset_index(drop=True), use_container_width=True, hide_index=True)
@@ -314,6 +312,8 @@ if submit_button:
         st.warning(warning_pipeline)
 
     # 3. Caption Strategy
+    
+    # Content Strategy and Alternative Platforms
     strategy_reco = strategy_recommendation(post_type_input, audience_gender_input, age_group_input)
     if not strategy_reco.empty:
         best_strategy = strategy_reco.iloc[0]
@@ -331,6 +331,8 @@ if submit_button:
         age_group_input,
         platform_input
     )
+        st.markdown(f"### 🎯 Content Strategy\n{strategy_reco.iloc[0]}")
+    alt_platform_reco = alternative_platform_suggestion(post_type_input, audience_gender_input, age_group_input, platform_input)
     if not alt_platform_reco.empty:
         if platform_input.lower() != 'all':
             alt_platform_text = f"Alternative platform you might consider: **{alt_platform_reco.iloc[0]['Platform']}**."
@@ -347,4 +349,6 @@ if submit_button:
     st.markdown(f"**Engagement Rate Model - RMSE:** {rmse:.3f} | **MAE:** {mae:.3f} | **R2:** {r2:.4f}")
 
 st.caption("© 2024 Social Media Analytics | Powered by Streamlit")
-~
+        st.markdown(f"### 🔄 Alternative Platform Suggestions\n{alt_platform_reco.iloc[0]}")
+
+st.markdown(f"**Engagement Rate Model - RMSE:** {rmse:.3f} | **MAE:** {mae:.3f} | **R2:** {r2:.4f}")
