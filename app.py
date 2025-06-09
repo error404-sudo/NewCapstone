@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -8,8 +7,6 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import gdown
-import pandas as pd
-import streamlit as st
 
 # ID file dari Google Drive (pastikan untuk menggunakan ID file yang benar)
 file_id = '1E4W1RvNGgyawc6I4TxQk76n289FX9kCK'  # Ganti dengan ID file dataset Anda
@@ -21,33 +18,20 @@ gdown.download(url, 'dataset social media.xlsx', quiet=False)
 # Membaca dataset setelah diunduh
 df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
 
-# Proses lainnya untuk aplikasi Streamlit
 # ===============================
 # === SETUP & PERSIAPAN DATA ====
 # ===============================
 
 @st.cache_data
 def load_data():
-    # Pastikan df sudah ada
-    return df
-
-# Load data
-df = load_data()
-
-# Lanjutkan dengan kode aplikasi Streamlit Anda...
-
-# ===============================
-# === SETUP & PERSIAPAN DATA ====
-# ===============================
-
-@st.cache_data
-def load_data():
+    # Proses cleaning data
     df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
-    # Cleaning kolom utama
+    
     for col in ['Platform', 'Post Type', 'Audience Gender', 'Age Group', 'Sentiment', 'Time Periods', 'Weekday Type']:
         if col in df.columns:
             df[col] = df[col].astype(str).str.strip().str.title()
-    # Drop kolom tidak relevan
+    
+    # Drop kolom yang tidak diperlukan
     drop_cols = [
         'Post ID', 'Date', 'Time', 'Audience Location', 'Audience Continent',
         'Audience Interests', 'Campaign ID', 'Influencer ID'
@@ -55,13 +39,16 @@ def load_data():
     for col in drop_cols:
         if col in df.columns:
             df = df.drop(columns=[col])
+    
     # Konversi timestamp dan fitur waktu
     df['Post Timestamp'] = pd.to_datetime(df['Post Timestamp'], errors='coerce')
     df = df.dropna(subset=['Post Timestamp'])
     df['Post Hour'] = df['Post Timestamp'].dt.hour
     df['Post Day Name'] = df['Post Timestamp'].dt.day_name()
+
     if 'Weekday Type' in df.columns:
         df = df.drop(columns=['Weekday Type'])
+
     return df
 
 df = load_data()
@@ -72,6 +59,27 @@ df = load_data()
 
 nltk.download('vader_lexicon')
 vader_analyzer = SentimentIntensityAnalyzer()
+
+# Proses lainnya untuk aplikasi Streamlit
+# ===============================
+# === FUNGSI UTAMA ANALISIS  ====
+# ===============================
+
+def analyze_sentiment(caption):
+    score = vader_analyzer.polarity_scores(caption)
+    if score['compound'] >= 0.05:
+        return "Positive"
+    elif score['compound'] <= -0.05:
+        return "Negative"
+    else:
+        return "Neutral"
+
+def apply_engagement_rate_formatting(df):
+    df['Engagement Rate'] = (df['Engagement Rate'] / 1000).round(4)  # Membagi dengan 1000
+    df['Engagement Rate'] = df['Engagement Rate'].clip(0.01, 1.00) * 100  # Membatasi antara 1% dan 100%
+    df['Engagement Rate'] = df['Engagement Rate'].astype(str) + '%'  # Menambahkan tanda persen
+    return df
+
 
 # ===============================
 # === FUNGSI UTAMA ANALISIS  ====
