@@ -1,5 +1,8 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import gdown
 import os
 
@@ -9,9 +12,9 @@ import os
 
 # Fungsi untuk mengunduh dataset
 def download_data():
-    file_id = '1E4W1RvNGgyawc6I4TxQk76n289FX9kCK'
+    file_id = '1E4W1RvNGgyawc6I4TxQk76n289FX9kCK'  # Ganti dengan ID file Google Drive Anda
     url = f'https://drive.google.com/uc?id={file_id}'
-    output = 'dataset_social_media.xlsx'
+    output = 'dataset_social_media.xlsx'  # Nama file yang diunduh
     gdown.download(url, output, quiet=False)
 
 # Mengecek apakah file sudah ada, jika tidak, download
@@ -19,50 +22,59 @@ if not os.path.exists('dataset_social_media.xlsx'):
     download_data()
 
 # ===============================
-# === SETUP & PERSIAPAN DATA ===
+# === SETUP & PERSIAPAN DATA ====
 # ===============================
 
 @st.cache_data
 def load_data():
-    df = pd.read_excel('dataset_social_media.xlsx', sheet_name='Working File')
-    
-    # Cleaning kolom utama
-    for col in ['Platform', 'Post Type', 'Audience Gender', 'Age Group', 'Sentiment', 'Time Periods', 'Weekday Type']:
-        if col in df.columns:
-            df[col] = df[col].astype(str).str.strip().str.title()
+    try:
+        # Membaca data dari file Excel
+        df = pd.read_excel('dataset_social_media.xlsx', sheet_name='Working File')
+        
+        # Menampilkan pesan jika file berhasil diunduh
+        st.success("File berhasil dimuat!")
+        
+        # Cleaning kolom utama
+        for col in ['Platform', 'Post Type', 'Audience Gender', 'Age Group', 'Sentiment', 'Time Periods', 'Weekday Type']:
+            if col in df.columns:
+                df[col] = df[col].astype(str).str.strip().str.title()
 
-    # Drop kolom tidak relevan
-    drop_cols = ['Post ID', 'Date', 'Time', 'Audience Location', 'Audience Continent', 'Audience Interests', 'Campaign ID', 'Influencer ID']
-    for col in drop_cols:
-        if col in df.columns:
-            df = df.drop(columns=[col])
+        # Drop kolom tidak relevan
+        drop_cols = ['Post ID', 'Date', 'Time', 'Audience Location', 'Audience Continent', 'Audience Interests', 'Campaign ID', 'Influencer ID']
+        for col in drop_cols:
+            if col in df.columns:
+                df = df.drop(columns=[col])
 
-    # Konversi timestamp dan fitur waktu
-    df['Post Timestamp'] = pd.to_datetime(df['Post Timestamp'], errors='coerce')
-    df = df.dropna(subset=['Post Timestamp'])
-    df['Post Hour'] = df['Post Timestamp'].dt.hour
-    df['Post Day Name'] = df['Post Timestamp'].dt.day_name()
-    if 'Weekday Type' in df.columns:
-        df = df.drop(columns=['Weekday Type'])
-    
-    return df
+        # Konversi timestamp dan fitur waktu
+        df['Post Timestamp'] = pd.to_datetime(df['Post Timestamp'], errors='coerce')
+        df = df.dropna(subset=['Post Timestamp'])
+        df['Post Hour'] = df['Post Timestamp'].dt.hour
+        df['Post Day Name'] = df['Post Timestamp'].dt.day_name()
+        if 'Weekday Type' in df.columns:
+            df = df.drop(columns=['Weekday Type'])
 
+        return df
+
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat membaca file: {e}")
+        return pd.DataFrame()  # Mengembalikan DataFrame kosong jika ada kesalahan
+
+# Memuat data
 df = load_data()
 
+# Menampilkan beberapa baris pertama dari data untuk memastikan semuanya berjalan dengan baik
+if not df.empty:
+    st.write(df.head())
+
 # ===============================
-# === INISIALISASI ANALYZER ===
+# === INISIALISASI ANALYZER ====
 # ===============================
 
-import nltk
+# Memastikan nltk dan vader lexicon sudah tersedia
 nltk.download('vader_lexicon')
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
+# Inisialisasi SentimentIntensityAnalyzer
 vader_analyzer = SentimentIntensityAnalyzer()
-
-# Tampilkan beberapa data untuk memastikan semuanya berjalan baik
-st.write(df.head())
-
-
 # ===============================
 # === FUNGSI UTAMA ANALISIS  ====
 # ===============================
