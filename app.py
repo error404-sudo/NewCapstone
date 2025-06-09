@@ -150,5 +150,3 @@ if submit_button:
     alt_platform_reco = alternative_platform_suggestion(post_type_input, audience_gender_input, age_group_input, platform_input)
     if not alt_platform_reco.empty:
         st.markdown(f"### 🔄 Alternative Platform Suggestions\n{alt_platform_reco.iloc[0]}")
-
-st.markdown(f"**Engagement Rate Model - RMSE:** {rmse:.3f} | **MAE:** {mae:.3f} | **R2:** {r2:.4f}")
