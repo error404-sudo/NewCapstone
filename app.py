@@ -6,7 +6,32 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import gdown
+import pandas as pd
+import streamlit as st
 
+# ID file dari Google Drive (pastikan untuk menggunakan ID file yang benar)
+file_id = '1E4W1RvNGgyawc6I4TxQk76n289FX9kCK'  # Ganti dengan ID file dataset Anda
+url = f'https://drive.google.com/uc?id={file_id}'
+
+# Download dataset dari Google Drive
+gdown.download(url, 'dataset social media.xlsx', quiet=False)
+
+# Membaca dataset setelah diunduh
+df = pd.read_excel('dataset social media.xlsx', sheet_name='Working File')
+
+# Proses lainnya untuk aplikasi Streamlit
+# ===============================
+# === SETUP & PERSIAPAN DATA ====
+# ===============================
+
+@st.cache_data
+def load_data():
+    # Pastikan df sudah ada
+    return df
+
+# Load data
+df = load_data()
 # ===============================
 # === SETUP & PERSIAPAN DATA ====
 # ===============================
